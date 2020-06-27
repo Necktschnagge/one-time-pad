@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS False)
 
 add_executable(One-Time-Pad
-	otp.cpp
+	src/otp.cpp
 	)
 
 include_directories(SYSTEM extern/json/include)
