@@ -41,9 +41,9 @@ steps:
 #
 #- task: PublishBuildArtifacts@1
  - script: |
-     cd ./script/
-
+     echo "Hello world!"
  - script: |
+     cd ./script/
      ls 
      ./unix-install.sh
      displayName: 'Build stuff'
