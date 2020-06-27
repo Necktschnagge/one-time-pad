@@ -1,0 +1,44 @@
+os: linux
+dist: bionic
+
+language: cpp
+compiler:
+ - clang
+ - gcc
+
+addons:
+ apt:
+  packages:
+   - gcc-8
+   - g++-8
+   - cmake
+   - doxygen
+
+script:
+ - echo Check versions of compilers etc... #------------------------------------
+ - sudo ln -s /usr/bin/gcc-8 /usr/local/bin/gcc
+ - sudo ln -s /usr/bin/g++-8 /usr/local/bin/g++
+ - gcc -v
+ - g++ -v
+ - cmake --version
+ - echo Create project directory... #------------------------------------
+ - mkdir cmake-build
+ - cd cmake-build
+ - echo Create Project... #------------------------------------
+ - cmake -DCMAKE_RULE_MESSAGES:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..
+ - echo Build Project... #------------------------------------
+ - cmake --build .
+ - ls -la
+ - cd ..
+# - doxygen Doxyfile
+
+#deploy:
+#    provider: pages
+#    skip_cleanup: true
+#    token: $GH_REPO_TOKEN
+#    keep_history: true
+#    local_dir: html
+#    target_branch: gh-pages
+#    on :
+#        branch: master
+#
