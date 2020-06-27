@@ -1,1 +1,1 @@
-cmake --build -B ./build
+cmake --build ./build
