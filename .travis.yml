@@ -13,7 +13,7 @@ addons:
    - doxygen
 
 script:
- - sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+ - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
  - sudo apt update
  - sudo apt install gcc-9
  - sudo apt install g++-9
