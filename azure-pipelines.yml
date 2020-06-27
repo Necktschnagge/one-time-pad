@@ -41,6 +41,8 @@ steps:
 #
 #- task: PublishBuildArtifacts@1
  - script: |
-     ls
-     cmake -S .. -B ../build/
+     cd ./script
+	 
+ - script: |
+     ./unix-install.sh
      displayName: 'Build stuff'
