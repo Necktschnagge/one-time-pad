@@ -1,6 +1,8 @@
 
 #include "nlohmann/json.hpp"
-#include "experimental/filesystem"
+
+#include <experimental/filesystem>
+#include <iostream>
 
 static constexpr bool DEBUG_MODE = false;
 
@@ -50,6 +52,7 @@ config: {
 
 bool exists_config_file(int argc, char** argv) {
 	std::experimental::filesystem::path p;
+	return false;
 }
 
 int main(int argc, char** argv)
