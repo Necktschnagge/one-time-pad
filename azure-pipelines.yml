@@ -46,4 +46,3 @@ steps:
      cd ./script/
      ls 
      ./unix-install.sh
-     displayName: 'Build stuff'
