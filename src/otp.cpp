@@ -1,7 +1,7 @@
 
 #include "nlohmann/json.hpp"
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <iostream>
 
 static constexpr bool DEBUG_MODE = false;
@@ -49,10 +49,10 @@ config: {
  otp register pad_name keyfile_path -> add new keyfile to a 
 */
 
-
 bool exists_config_file(int argc, char** argv) {
-	std::experimental::filesystem::path p;
-	return false;
+	std::filesystem::path p{ *argv };
+	p += "./config.json";
+	return std::filesystem::exists(p);
 }
 
 int main(int argc, char** argv)
