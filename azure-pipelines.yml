@@ -6,8 +6,9 @@ strategy:
   matrix:
     ubuntu_latest:
       imageName: 'ubuntu-latest'
-      CC: gcc-8
-      CXX: g++-8
+      variables:
+       CC: gcc-8
+       CXX: g++-8
 
     ubuntu_18_04:
       imageName: 'ubuntu-18.04'
