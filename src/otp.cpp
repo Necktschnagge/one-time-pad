@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <optional>
-#include <funcional>
+#include <functional>
 
 static constexpr bool DEBUG_MODE = false;
 
@@ -54,26 +54,42 @@ config: {
 */
 
 bool exists_config_file(const std::filesystem::path& working_directory) {
-	return std::filesystem::exists(p + "./config.json");
+	return std::filesystem::exists(working_directory / "config.json");
 }
 
 struct global_data {
 	std::filesystem::path working_path;
 };
 
-std::optional<std::function<std::string (*)()>> otp_init(std::vector<std::string> inputs){
-	if (inputs[1] == "init") return [](){
-		auto x = true;
-		return "";
-	};
-	else 
-	
+
+static const std::string EMPTY_CONFIG{ R"xxx({
+   pads: []
+   config: {
+      auto_delete_used_keyfiles: false
+      }
+})xxx" };
+
+auto run_otp_init() -> std::string {
+	auto x = true;
+	return "";
+};
+
+using opt_type = std::optional<std::function<std::string(*)()>>;
+opt_type parse_otp_init(const std::vector<std::string>& inputs){
+	 /*if (inputs[1] == "init") {
+		 return opt_type();
+	 }
+	 else {
+		 return opt_type();
+	 }*/
+	return std::optional<std::function<std::string(*)()>>();
 }
 
 std::vector<std::string> decode_input(int argc, char** argv){
 	std::vector<std::string> result(argc);
-	for(std::size_t i = 0; i < argc; ++i)
+	for(decltype(argc) i = 0; i < argc; ++i)
 		result[i] = argv[i];
+	return result;
 }
 
 int main(int argc, char** argv)
