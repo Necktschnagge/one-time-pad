@@ -6,6 +6,9 @@ strategy:
   matrix:
     ubuntu_latest:
       imageName: 'ubuntu-latest'
+      CC: gcc-8
+      CXX: g++-8
+
     ubuntu_18_04:
       imageName: 'ubuntu-18.04'
     ubuntu_16_04:
@@ -27,9 +30,6 @@ strategy:
 
 pool:
   vmImage: $(imageName)
-variables:
- CC: gcc-8
- CXX: g++-8
 
 steps:
  - script: | 
