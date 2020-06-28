@@ -30,6 +30,7 @@ steps:
     script: |
      Write-Host "Running install script on windows systems..."
      cd ./script/
+     ls
      ./win-install.ps1
  - task: Bash@3
    inputs:
