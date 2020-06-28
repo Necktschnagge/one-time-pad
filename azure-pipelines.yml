@@ -24,13 +24,13 @@ steps:
 #      cd ./script/
 #      ./unix-install.sh
  - task: PowerShell@0
-    condition: eq( variables['Agent.OS'], 'Windows_NT' )
-    inputs:
-     targetType: 'inline'
-     script: |
-      Write-Host "Running install script on windows systems..."
-      cd ./script/
-      ./win-install.ps1
+   condition: eq( variables['Agent.OS'], 'Windows_NT' )
+   inputs:
+    targetType: 'inline'
+    script: |
+     Write-Host "Running install script on windows systems..."
+     cd ./script/
+     ./win-install.ps1
 - task: Bash@3
   inputs:
     targetType: 'inline'
