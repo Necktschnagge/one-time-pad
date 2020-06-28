@@ -4,11 +4,14 @@
 # https://aka.ms/yaml
 strategy:
   matrix:
-    ubuntu_latest:
+    ubuntu_latest_gcc_10:
+      imageName: 'ubuntu-latest'
+      CC: gcc-10
+      CXX: g++-10
+    ubuntu_latest_gcc_9:
       imageName: 'ubuntu-latest'
       CC: gcc-9
       CXX: g++-9
-
     ubuntu_18_04:
       imageName: 'ubuntu-18.04'
       CC: gcc-8
