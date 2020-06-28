@@ -18,8 +18,8 @@ strategy:
       imageName: 'macos-latest'
     mac_10_15:
       imageName: 'macos-10.15'
-    mac_10_14:
-      imageName: 'macos-10.14'
+#    mac_10_14: #fails since with Apple toolchain std::filesystem::path is not available before macos-10-15
+#      imageName: 'macos-10.14'
 
     windows_latest:
       imageName: 'windows-latest'
