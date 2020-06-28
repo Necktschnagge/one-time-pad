@@ -1,0 +1,58 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+strategy:
+  matrix:
+    ubuntu_latest_gcc_9:
+      imageName: 'ubuntu-latest'
+      CC: gcc-9
+      CXX: g++-9
+    ubuntu_18_04_gcc_8:
+      imageName: 'ubuntu-18.04'
+      CC: gcc-8
+      CXX: g++-8
+    ubuntu_16_04_gcc_8:
+      imageName: 'ubuntu-16.04'
+      CC: gcc-8
+      CXX: g++-8
+
+    mac_latest:
+      imageName: 'macos-latest'
+    mac_10_15:
+      imageName: 'macos-10.15'
+#    mac_10_14: #fails since with Apple toolchain std::filesystem::path is not available before macos-10-15
+#      imageName: 'macos-10.14'
+
+    windows_latest:
+      imageName: 'windows-latest'
+    windows_2019:
+      imageName: 'windows-2019'
+    windows_2016:
+      imageName: 'vs2017-win2016'
+
+pool:
+  vmImage: $(imageName)
+
+steps:
+ - script: | 
+     git submodule init
+     git submodule update
+ - task: Bash@3
+   condition: ne( variables['Agent.OS'], 'Windows_NT')
+   inputs:
+    targetType: 'inline'
+    script: |
+     echo Running install script on unix systems...
+     cd ./script/
+     ./unix-install.sh
+     ./unix-build.sh
+ - task: PowerShell@2
+   condition: eq( variables['Agent.OS'], 'Windows_NT' )
+   inputs:
+    targetType: 'inline'
+    script: |
+     Write-Host "Running install script on windows systems..."
+     cd ./script/
+     ./win-install.ps1
+     ./win-build.ps1
