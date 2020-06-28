@@ -15,6 +15,9 @@ pool:
   vmImage: $(imageName)
 
 steps:
+ - script: | 
+     git submodule init
+     git submodule update
  - task: Bash@3
    condition: ne( variables['Agent.OS'], 'Windows_NT')
    inputs:
