@@ -9,15 +9,17 @@ compiler:
 addons:
  apt:
   packages:
-   - gcc-8
-   - g++-8
    - cmake
    - doxygen
 
 script:
+ - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+ - sudo apt-get update
+ - sudo apt-get install gcc-9
+ - sudo apt-get install g++-9
  - echo Check versions of compilers etc... #------------------------------------
- - sudo ln -s /usr/bin/gcc-8 /usr/local/bin/gcc
- - sudo ln -s /usr/bin/g++-8 /usr/local/bin/g++
+ - sudo ln -s /usr/bin/gcc-9 /usr/local/bin/gcc
+ - sudo ln -s /usr/bin/g++-9 /usr/local/bin/g++
  - gcc -v
  - g++ -v
  - cmake --version
