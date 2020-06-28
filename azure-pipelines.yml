@@ -16,7 +16,7 @@ pool:
 
 steps:
  - task: Bash@0
-  inputs:
+   - inputs:
      condition: neq( variables['Agent.OS'], 'Windows_NT')
      targetType: 'inline'
      script: |
@@ -24,7 +24,7 @@ steps:
       cd ./script/
       ./unix-install.sh
  - task: PowerShell@0
-  inputs:
+   - inputs:
      condition: eq( variables['Agent.OS'], 'Windows_NT' )
      targetType: 'inline'
      script: |
