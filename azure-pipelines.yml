@@ -49,5 +49,4 @@ steps:
      Write-Host "Running install script on windows systems..."
      cd ./script/
      ./win-install.ps1
-     gci ../extern/ -Recurse
      ./win-build.ps1
