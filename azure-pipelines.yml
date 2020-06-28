@@ -6,10 +6,17 @@ strategy:
   matrix:
     ubuntu_latest:
       imageName: 'ubuntu-latest'
+      CC: gcc-9
+      CXX: g++-9
+
     ubuntu_18_04:
       imageName: 'ubuntu-18.04'
+      CC: gcc-8
+      CXX: g++-8
     ubuntu_16_04:
       imageName: 'ubuntu-16.04'
+      CC: gcc-8
+      CXX: g++-8
 
     mac_latest:
       imageName: 'macos-latest'
@@ -24,19 +31,6 @@ strategy:
       imageName: 'windows-2019'
     windows_2016:
       imageName: 'vs2017-win2016'
-
-strategy:
-  matrix:
-    GCC_8:
-      CC: gcc-8
-      CXX: g++-8
-    GCC_9:
-      CC: gcc-9
-      CXX: g++-9
-    GCC_10:
-      CC: gcc-10
-      CXX: g++-10
-
 
 pool:
   vmImage: $(imageName)
