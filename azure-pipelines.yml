@@ -16,7 +16,7 @@ pool:
 
 steps:
  - task: Bash@3
-   condition: neq( variables['Agent.OS'], 'Windows_NT')
+   condition: ne( variables['Agent.OS'], 'Windows_NT')
    inputs:
     targetType: 'inline'
     script: |
