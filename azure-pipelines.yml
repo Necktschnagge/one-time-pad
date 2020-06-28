@@ -16,18 +16,25 @@ pool:
 
 steps:
  - task: Bash@0
-    inputs:
+  inputs:
      condition: neq( variables['Agent.OS'], 'Windows_NT')
      targetType: 'inline'
      script: |
-      echo "Running install script on unix systems..."
+      echo Running install script on unix systems...
       cd ./script/
       ./unix-install.sh
  - task: PowerShell@0
-    inputs:
+  inputs:
      condition: eq( variables['Agent.OS'], 'Windows_NT' )
      targetType: 'inline'
      script: |
-      echo "Running install script on windows systems..."
+      Write-Host "Running install script on windows systems..."
       cd ./script/
       ./win-install.ps1
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Write your commands here
+      
+      echo 'Hello world'
