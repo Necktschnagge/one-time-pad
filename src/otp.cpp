@@ -174,8 +174,8 @@ std::vector<std::string> decode_input(int argc, char** argv) {
 	return result;
 }
 
-int main(int argc, char** argv)
-{
+
+int cli(int argc, char** argv) {
 	try {
 		std::cout << "This is Fussel One-Time-Pad 1.0";
 
@@ -205,7 +205,7 @@ int main(int argc, char** argv)
 				return str + (str.empty() ? "" : ", ") + ptr->description();
 				})
 			+ "}."
-					);
+		);
 
 		// When execution is here: there is exactly one matching action. Execute it:
 		matching_actions.front()->run();
@@ -215,5 +215,16 @@ int main(int argc, char** argv)
 	}
 	catch (const action_error& e) {
 		std::cerr << "\n" << e.what() << "\n\nAborted.";
+		return 1;
 	}
+	catch (...) {
+		std::cerr << "Unknown exception caught. Please report to the developer.";
+		return 2;
+	}
+	return 0;
+}
+
+int main(int argc, char** argv)
+{
+	return cli(argc, argv);
 }
