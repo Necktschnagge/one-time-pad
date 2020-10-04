@@ -38,9 +38,8 @@ steps:
  - script: | 
      git submodule init
      git submodule update
- - script: Create Project
-   script: |
-     cmake -S .. -B ../build/
+ - script: cmake -S .. -B ../build/
+   displayName: CMake: Create Project|
  - task: Bash@3
    condition: ne( variables['Agent.OS'], 'Windows_NT')
    inputs:
