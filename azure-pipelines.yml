@@ -38,9 +38,11 @@ steps:
  - script: | 
      git submodule init
      git submodule update
-   displayName: "Git Submodules"
- - script: cmake -S .. -B ../build/
+   displayName: "Init Git Submodules"
+ - script: cmake -S . -B ./build/
    displayName: "CMake: Create Project"
+ - script: cmake --build ./build
+   displayName: "CMake: Compile and Link"
  - task: Bash@3
    condition: ne( variables['Agent.OS'], 'Windows_NT')
    inputs:
@@ -48,8 +50,6 @@ steps:
     script: |
      echo Running install script on unix systems...
      cd ./script/
-     ./unix-install.sh
-     ./unix-build.sh
      ls -R ..
      ./unix-test.sh
  - task: PowerShell@2
@@ -59,6 +59,4 @@ steps:
     script: |
      Write-Host "Running install script on windows systems..."
      cd ./script/
-     ./win-install.ps1
-     ./win-build.ps1
      ./win-test.ps1
