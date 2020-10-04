@@ -10,18 +10,30 @@ set(CMAKE_CXX_FLAGS_RELEASE "/MT")
 set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 
 add_subdirectory(extern/googletest)
-enable_testing()
 
 include_directories(SYSTEM extern/json/include)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-
 add_subdirectory(src)
 add_subdirectory(test)
 
-
+enable_testing()
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})#Set Visualo Studio start-up project, so that one can directly run the debugger.
+
+#add_custom_target(
+#  Test ALL
+#)
+#
+#add_custom_command(
+##  OUTPUT stamped_file.lic
+#  TARGET Test
+#  DEPENDS Test-One-Time-Pad
+#  COMMAND /build/test/Debug/TEST-One-Time-Pad.exe
+##  DEPENDS any/dependency.file
+#  COMMENT "Run tests"
+##  VERBATIM
+#)
 
 ################################
 # Unit Tests

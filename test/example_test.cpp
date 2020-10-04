@@ -2,5 +2,5 @@
 #include "example.h"
 
 TEST(example, file_exists){
-	ASSERT_TRUE(true);
+	ASSERT_TRUE(false);
 }
