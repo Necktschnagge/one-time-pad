@@ -12,6 +12,7 @@
 #include <memory>
 #include <forward_list>
 #include <numeric>
+#include <list>
 
 /*
 {
