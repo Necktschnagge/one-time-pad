@@ -13,6 +13,7 @@
 #include <forward_list>
 #include <numeric>
 #include <list>
+#include <string_view>
 
 /*
 {
@@ -43,6 +44,7 @@
 	]
 config: {
 	auto_delete_used_keyfiles : false
+	auto_increase_keypad_pointer : true
 }
 }
 
@@ -57,8 +59,10 @@ config: {
  otp register pad_name keyfile_path -> add new keyfile to a
 */
 
+constexpr std::string_view CONFIG_FILE_STANDARD_NAME{ "config.json" };
+
 inline std::filesystem::path config_file_path(const std::filesystem::path& working_directory) {
-	return working_directory / "config.json";
+	return working_directory / CONFIG_FILE_STANDARD_NAME;
 }
 
 inline bool exists_config_file(const std::filesystem::path& working_directory) {
