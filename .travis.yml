@@ -24,15 +24,16 @@ script:
  - g++ -v
  - cmake --version
  - echo Create project directory... #------------------------------------
- - ls -la
+ - mkdir build
+ - cd ./build
  - echo Create Project... #------------------------------------
- - cmake -S . -B ./build/
+ - cmake -S ..
 # - cmake -DCMAKE_RULE_MESSAGES:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..
  - echo Build Project... #------------------------------------
- - cmake --build ./build
+ - cmake --build .
  - echo Run Tests... #------------------------------------
- - chmod +x ./build/test/TEST-One-Time-Pad
- - ./build/test/TEST-One-Time-Pad
+ - chmod +x ./test/TEST-One-Time-Pad
+ - ./test/TEST-One-Time-Pad
 
 # - ls -la
 # - cd ..
