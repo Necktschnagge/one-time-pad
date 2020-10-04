@@ -44,15 +44,10 @@ steps:
  - script: cmake --build ./build
    displayName: "CMake: Compile and Link"
  - script: |
-     chmod +x ../build/test/TEST-One-Time-Pad
-     ../build/test/TEST-One-Time-Pad
+     chmod +x ./build/test/TEST-One-Time-Pad
+     ./build/test/TEST-One-Time-Pad
    displayName: "Run Tests on Linux / Mac OS"
    condition: ne( variables['Agent.OS'], 'Windows_NT')
- - task: PowerShell@2
+ - script: .\build\test\Debug\TEST-One-Time-Pad.exe
+   displayName: "Run Tests on Windows"
    condition: eq( variables['Agent.OS'], 'Windows_NT' )
-   inputs:
-    targetType: 'inline'
-    script: |
-     Write-Host "Running install script on windows systems..."
-     cd ./script/
-     ./win-test.ps1
