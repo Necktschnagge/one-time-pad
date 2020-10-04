@@ -24,14 +24,18 @@ script:
  - g++ -v
  - cmake --version
  - echo Create project directory... #------------------------------------
- - mkdir cmake-build
- - cd cmake-build
+ - mkdir build
  - echo Create Project... #------------------------------------
- - cmake -DCMAKE_RULE_MESSAGES:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..
+ - cmake -S . -B ./build/
+# - cmake -DCMAKE_RULE_MESSAGES:BOOL=OFF -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON ..
  - echo Build Project... #------------------------------------
- - cmake --build .
- - ls -la
- - cd ..
+ - cmake --build ./build
+ - echo Run Tests...
+ - chmod +x ./build/test/TEST-One-Time-Pad
+ - ./build/test/TEST-One-Time-Pad
+
+# - ls -la
+# - cd ..
 # - doxygen Doxyfile
 
 #deploy:
