@@ -38,21 +38,16 @@ steps:
  - script: | 
      git submodule init
      git submodule update
- - task: Bash@3
+   displayName: "Init Git Submodules"
+ - script: cmake -S . -B ./build/
+   displayName: "CMake: Create Project"
+ - script: cmake --build ./build
+   displayName: "CMake: Compile and Link"
+ - script: |
+     chmod +x ./build/test/TEST-One-Time-Pad
+     ./build/test/TEST-One-Time-Pad
+   displayName: "Run Tests on Linux / Mac OS"
    condition: ne( variables['Agent.OS'], 'Windows_NT')
-   inputs:
-    targetType: 'inline'
-    script: |
-     echo Running install script on unix systems...
-     cd ./script/
-     ./unix-install.sh
-     ./unix-build.sh
- - task: PowerShell@2
+ - script: .\build\test\Debug\TEST-One-Time-Pad.exe
+   displayName: "Run Tests on Windows"
    condition: eq( variables['Agent.OS'], 'Windows_NT' )
-   inputs:
-    targetType: 'inline'
-    script: |
-     Write-Host "Running install script on windows systems..."
-     cd ./script/
-     ./win-install.ps1
-     ./win-build.ps1
