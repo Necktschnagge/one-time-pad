@@ -15,6 +15,14 @@
 #include <list>
 #include <string_view>
 
+std::vector<std::string> decode_command_line_input(int argc, char** argv) {
+	auto result{ std::vector<std::string>(argc) };
+	for (decltype(argc) i = 0; i < argc; ++i)
+		(result)[i] = argv[i];
+	return result;
+}
+
+
 /*
 {
  pads :
@@ -57,34 +65,32 @@ config: {
  otp status -> check status of config.json
  otp [encrypt|decrypt] source_file_path destination_file_path pad_name
  otp register pad_name keyfile_path -> add new keyfile to a
+
+ -C ./path/to/another_file_name.json
+
+
+otp [-D | -F | -DF ] [action_name] [action params]
+
+
+
 */
 
-constexpr std::string_view CONFIG_FILE_STANDARD_NAME{ "config.json" };
-
-inline std::filesystem::path config_file_path(const std::filesystem::path& working_directory) {
-	return working_directory / CONFIG_FILE_STANDARD_NAME;
-}
-
-inline bool exists_config_file(const std::filesystem::path& working_directory) {
-	return std::filesystem::exists(config_file_path(working_directory));
-}
-
-struct global_data {
-	std::vector<std::string> input;
-	std::filesystem::path working_directory;
-};
 
 
-static const std::string EMPTY_CONFIG{ R"xxx({
+struct const_strings {
+
+	static constexpr std::string_view CONFIG_FILE_STANDARD_NAME{ "config.json" };
+
+	static constexpr std::string_view EMPTY_CONFIG{ R"xxx({
    pads: []
    config: {
       auto_delete_used_keyfiles: false
-      }
+   }
 }
 )xxx" };
 
 
-
+};
 
 class action_error : public std::exception {
 	std::string message;
@@ -103,6 +109,50 @@ public:
 		return message.c_str();
 	}
 };
+
+
+
+class global_data {
+
+	std::filesystem::path _config_file_path;
+
+	std::vector<std::string> _action_command_sequence;
+
+
+public:
+
+	const std::vector<std::string> application_start_arguments;
+
+	
+	inline std::filesystem::path working_directory() const { return application_start_arguments[0]; }
+
+	inline std::filesystem::path standard_config_file_path() const { return working_directory() / const_strings::CONFIG_FILE_STANDARD_NAME; }
+
+	inline const std::filesystem::path& config_file_path() const { return _config_file_path; }
+
+	inline bool exists_config_file() const { return std::filesystem::exists(config_file_path()); }
+
+public:
+	
+	global_data(int argc, char** argv) : application_start_arguments(decode_command_line_input(argc, argv)) {
+		unsigned int skip_arg_counter{ 1 };
+		if (application_start_arguments[1] == "-C") {
+			_config_file_path = working_directory() / application_start_arguments[2];
+			skip_arg_counter += 2;
+		}
+		else {
+			_config_file_path = standard_config_file_path();
+		}
+		action_error::assert_true(application_start_arguments.cend() - application_start_arguments.cbegin() < skip_arg_counter,
+			"Internal error: Skip arguments on global data initialisation failed.");
+		for (auto it = application_start_arguments.cbegin() + skip_arg_counter; it != application_start_arguments.cend(); ++it) {
+			_action_command_sequence.push_back(*it);
+		}
+	}
+	
+};
+
+
 
 class action {
 public:
@@ -134,7 +184,7 @@ public:
 class otp_init : public action {
 public:
 	bool match() const override {
-		return data->input[1] == "init";
+		return data->application_start_arguments[1] == "init";
 	}
 
 	std::string description() const override {
@@ -143,42 +193,35 @@ public:
 
 protected:
 	void act() override {
-		action_error::assert_true(data->input.size() == 2, "Too many arguments.");
-		action_error::assert_true(!exists_config_file(data->working_directory), "File config.json already found.");
-		auto config_json{ std::ofstream(config_file_path(data->working_directory)) };
+		action_error::assert_true(data->application_start_arguments.size() == 2, "Too many arguments.");
+		action_error::assert_true(!data->exists_config_file(), "File config.json already found.");
+		auto config_json{ std::ofstream(data->config_file_path()) };
 		action_error::assert_true(config_json.good(), "Could not create config.json.");
-		config_json << EMPTY_CONFIG;
+		config_json << const_strings::EMPTY_CONFIG;
 		config_json.close();
-		std::cout << "Successfully created a fresh config.json:\n\t" << data->working_directory << '\n';
+		std::cout << "Successfully created a fresh config.json:\n\t" << data->working_directory() << '\n';
 	}
 
 };
 
 class otp_status : public action {
 	bool match() const override {
-		return data->input[1] == "status";
+		return data->application_start_arguments[1] == "status";
 	}
 
 protected:
 	void act() override {
-		action_error::assert_true(data->input.size() == 2, "Too many arguments.");
-		if (!exists_config_file(data->working_directory)) {
+		action_error::assert_true(data->application_start_arguments.size() == 2, "Too many arguments.");
+		if (!data->exists_config_file()) {
 			std::cout << "The current directory has not been set up for One-Time-Pad: File config.json is missing.\n You may create one by typing:\n   otp init\n";
 			return;
 		}
-		auto config_json{ std::ifstream(config_file_path(data->working_directory)) };
+		auto config_json{ std::ifstream(data->config_file_path()) };
 		action_error::assert_true(config_json.good(), "Could not read config.json although there exists such a file.");
 
 		config_json.close();
 	}
 };
-
-std::vector<std::string> decode_input(int argc, char** argv) {
-	auto result{ std::vector<std::string>(argc) };
-	for (decltype(argc) i = 0; i < argc; ++i)
-		(result)[i] = argv[i];
-	return result;
-}
 
 
 int cli(int argc, char** argv) {
@@ -186,9 +229,7 @@ int cli(int argc, char** argv) {
 		std::cout << "This is Fussel One-Time-Pad 1.0";
 
 		// init global data:
-		global_data data;
-		data.input = decode_input(argc, argv);
-		data.working_directory = data.input[0];
+		global_data data{ argc, argv };
 
 		// give calss action access to global data:
 		action::data = &data;
@@ -205,13 +246,13 @@ int cli(int argc, char** argv) {
 		action_error::assert_true(matching_actions.size() > 0, "Invalid input. There is no otp action matching your input.");
 		action_error::assert_true(matching_actions.size() < 2,
 			std::string("Internal error. Please report the following to the developers:\nMore than one action matched for input sequence which is:\n  ")
-			+ std::accumulate(data.input.cbegin(), data.input.cend(), std::string(), [](const auto& l, const auto& r) { return l + " " + r; })
+			+ std::accumulate(data.application_start_arguments.cbegin(), data.application_start_arguments.cend(), std::string(), [](const auto& l, const auto& r) { return l + " " + r; })
 			+ "\nThe matching actions are {"
 			+ std::accumulate(matching_actions.cbegin(), matching_actions.cend(), std::string(), [](const auto& str, const auto& ptr) {
 				return str + (str.empty() ? "" : ", ") + ptr->description();
 				})
 			+ "}."
-		);
+					);
 
 		// When execution is here: there is exactly one matching action. Execute it:
 		matching_actions.front()->run();
@@ -225,6 +266,7 @@ int cli(int argc, char** argv) {
 	}
 	catch (...) {
 		std::cerr << "Unknown exception caught. Please report to the developer.";
+		//### rethrow so that one can see the output of exception
 		return 2;
 	}
 	return 0;
@@ -232,5 +274,5 @@ int cli(int argc, char** argv) {
 
 int main(int argc, char** argv)
 {
-	return cli(argc, argv);
+	//return cli(argc, argv);
 }
