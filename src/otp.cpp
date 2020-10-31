@@ -141,9 +141,25 @@ public:
 */
 class global_data {
 
-	std::filesystem::path _config_file_path; // absolute path to config file
+	std::filesystem::path _config_file_path; // absolute path to config file, weakly_cannonical, i.e. containing no .. or .
 
-	std::vector<std::string> _action_command_sequence; // 
+	std::vector<std::string> _action_command_sequence; // commands regarding the action to be executed (no executable path, no -C option anymore)
+
+	std::filesystem::path executable_path; // path to the executable which is running
+
+	std::filesystem::path working_directory; // current working directory
+
+	inline std::filesystem::path pad_root_directory() { return  _config_file_path.parent_path(); } // absolute path to the root directory of the pad, which is the directory where the config.json is located
+
+public:
+
+	const std::vector<std::string> application_start_arguments; // all arguments as passed via the commandline
+
+	inline const std::filesystem::path& config_file_path() const { return _config_file_path; }
+
+	inline bool exists_config_file() const { return std::filesystem::exists(config_file_path()); }
+
+private:
 
 	std::vector<std::string> decode_command_line_input(int argc, char** argv) {
 		auto result{ std::vector<std::string>(argc) };
@@ -151,20 +167,6 @@ class global_data {
 			result[i] = argv[i];
 		return result;
 	}
-
-	std::filesystem::path executable_path;
-
-	std::filesystem::path working_directory;
-
-	inline std::filesystem::path pad_root_directory() { return  _config_file_path.parent_path(); }
-
-public:
-
-	const std::vector<std::string> application_start_arguments;
-
-	inline const std::filesystem::path& config_file_path() const { return _config_file_path; }
-
-	inline bool exists_config_file() const { return std::filesystem::exists(config_file_path()); }
 
 public:
 
@@ -202,6 +204,8 @@ public:
 			_config_file_path = working_directory / const_strings::CONFIG_FILE_STANDARD_NAME;
 			standard_logger().debug(std::string("Implicitly use standard config file path: ") + _config_file_path.generic_string());
 		}
+
+		throw "move on here";
 
 		internal_error::assert_true(application_start_arguments.cend() - application_start_arguments.cbegin() <= skip_arg_counter,
 			"Skipping arguments on global data initialisation failed.");
