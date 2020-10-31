@@ -11,6 +11,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
 
 add_subdirectory(extern/googletest)
 
+include_directories(SYSTEM extern/spdlog/include)
 include_directories(SYSTEM extern/json/include)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 

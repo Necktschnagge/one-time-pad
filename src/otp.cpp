@@ -1,9 +1,13 @@
 
 
 
+#include "internal_error.h"
 #include "debug_util.h"
 
 #include "nlohmann/json.hpp"
+
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/ostream_sink.h"
 
 #include <filesystem>
 #include <iostream>
@@ -73,7 +77,11 @@ otp [-D | -F | -DF ] [action_name] [action params]
 
 */
 
-
+spdlog::logger& standard_logger() {
+	auto raw_ptr = spdlog::get("standard_logger").get();
+	internal_error::assert_true(raw_ptr != nullptr, "The standard logger has not been registered.");
+	return *raw_ptr;
+}
 
 struct const_strings {
 
@@ -108,26 +116,6 @@ public:
 	}
 };
 
-class internal_error : public std::exception {
-	std::string message;
-
-	inline static const std::string INTERNAL_ERROR{ "Internal Error:  " };
-	inline static const std::string PLEASE_REPORT{ "  Please report this to the developers: Open an issue at https://github.com/Necktschnagge/one-time-pad/issues and copy-paste the error message. If possible describe the scenario which led to this error." };
-public:
-	static void assert_true(bool condition, const action_error& exception) {
-		if (!condition) throw exception;
-	}
-
-	internal_error(const std::string& message) : message( INTERNAL_ERROR + message + PLEASE_REPORT) {}
-	internal_error(const char* message) : internal_error(std::string(message)) {}
-	internal_error(const internal_error&) = default;
-
-
-
-	const char* what() const noexcept override {
-		return message.c_str();
-	}
-};
 
 class bad_argument : public std::exception {
 	std::string message;
@@ -188,6 +176,8 @@ public:
 #pragma warning ("Chek out what exceptions are thrown here.")
 			throw bad_argument("The working directory where the application was started could not be parsed.");
 		}
+		standard_logger().debug(std::string("path to executable: ") + executable_path.generic_string());
+		standard_logger().debug(std::string("working directory: ") + working_directory.generic_string());
 		std::cout << "exe path: " << working_directory << " working dir: " << std::filesystem::current_path(); // use spdlog here? this is normal debug level
 #pragma warning ("check here if working directory is really the working directory or if it points to the application file")
 		unsigned int skip_arg_counter{ 1 };
@@ -285,7 +275,7 @@ protected:
 };
 
 
-int cli(int argc, char** argv) {
+int cli(int argc, char** argv, std::shared_ptr<spdlog::logger> standard_logger) {
 	try {
 		std::cout << "This is Fussel One-Time-Pad 1.0";
 		// init global data:
@@ -326,17 +316,30 @@ int cli(int argc, char** argv) {
 			"\n\nAborted.";
 		return 1;
 	}
+	catch (const internal_error& e) {
+		std::cerr << e.what();
+		return 2;
+	}
 	catch (...) {
 		std::cerr << "Unknown exception caught. Please report to the developer.";
 		//### rethrow so that one can see the output of exception
-		return 2;
+		return 5;
 	}
 	return 0;
 }
 
 int main(int argc, char** argv)
 {
-	return cli(argc, argv);
+	// set up logger
+	spdlog::set_level(spdlog::level::debug);
+	auto sink_std_cout = std::make_shared<spdlog::sinks::ostream_sink_mt>(std::cout);
+	auto standard_logger = std::make_shared<spdlog::logger>("standard_logger", sink_std_cout);
+	spdlog::register_logger(standard_logger);
+
+
+	return cli(argc, argv, standard_logger);
+
+
 	// run debugger to find exception cause
 	// visual studio if debug mode does not hold at the debug points, go to project -> properties -> c/c++ -> general -> debug information format
 	// change it to program dtabase for edit and continue
