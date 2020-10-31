@@ -77,8 +77,10 @@ otp [-D | -F | -DF ] [action_name] [action params]
 
 */
 
+static const std::string STANDARD_LOGGER_NAME{ "otplog" };
+
 spdlog::logger& standard_logger() {
-	auto raw_ptr = spdlog::get("standard_logger").get();
+	auto raw_ptr = spdlog::get(STANDARD_LOGGER_NAME).get();
 	internal_error::assert_true(raw_ptr != nullptr, "The standard logger has not been registered.");
 	return *raw_ptr;
 }
@@ -154,8 +156,7 @@ class global_data {
 
 	std::filesystem::path working_directory;
 
-	inline std::filesystem::path standard_config_file_path() const { return working_directory / const_strings::CONFIG_FILE_STANDARD_NAME; }
-
+	inline std::filesystem::path pad_root_directory() { return  _config_file_path.parent_path(); }
 
 public:
 
@@ -168,28 +169,40 @@ public:
 public:
 
 	global_data(int argc, char** argv) : application_start_arguments(decode_command_line_input(argc, argv)) {
+		standard_logger().debug("Initializing global data...");
 		try {
 			executable_path = application_start_arguments[0];
 			working_directory = std::filesystem::current_path();
 		}
 		catch (...) {
-#pragma warning ("Chek out what exceptions are thrown here.")
-			throw bad_argument("The working directory where the application was started could not be parsed.");
+			throw internal_error("Error when initializing working directories.");
 		}
 		standard_logger().debug(std::string("path to executable: ") + executable_path.generic_string());
 		standard_logger().debug(std::string("working directory: ") + working_directory.generic_string());
-		std::cout << "exe path: " << working_directory << " working dir: " << std::filesystem::current_path(); // use spdlog here? this is normal debug level
-#pragma warning ("check here if working directory is really the working directory or if it points to the application file")
-		unsigned int skip_arg_counter{ 1 };
 
+		unsigned int skip_arg_counter{ 1 };
+		goto bla;
 		if ((application_start_arguments.size()>1) && (application_start_arguments[1] == "-C")) {
 			// use a config file located at a custom directory with a custom name.
-			_config_file_path = working_directory / application_start_arguments[2];
+		bla: std::filesystem::path given_path = "./../..\\som<ething/go?od.txt"; //= application_start_arguments[2];
+			_config_file_path = given_path.has_root_path() ? 
+				given_path : 
+				working_directory / given_path ;
+			try {
+				_config_file_path = std::filesystem::weakly_canonical(_config_file_path);
+			}
+			catch (const std::filesystem::filesystem_error& e) {
+				standard_logger().error(std::string("Error on processing config file path: ") + e.what());
+				throw bad_argument("Given config file path might be ill-formed.");
+			}
 			skip_arg_counter += 2;
+			standard_logger().info(std::string("Set a custom config file path: ") + _config_file_path.generic_string());
 		}
 		else {
-			_config_file_path = standard_config_file_path();
+			_config_file_path = working_directory / const_strings::CONFIG_FILE_STANDARD_NAME;
+			standard_logger().debug(std::string("Implicitly use standard config file path: ") + _config_file_path.generic_string());
 		}
+
 		internal_error::assert_true(application_start_arguments.cend() - application_start_arguments.cbegin() <= skip_arg_counter,
 			"Skipping arguments on global data initialisation failed.");
 		for (auto it = application_start_arguments.cbegin() + skip_arg_counter; it != application_start_arguments.cend(); ++it) {
@@ -275,9 +288,9 @@ protected:
 };
 
 
-int cli(int argc, char** argv, std::shared_ptr<spdlog::logger> standard_logger) {
+int cli(int argc, char** argv) {
 	try {
-		std::cout << "This is Fussel One-Time-Pad 1.0";
+		standard_logger().info("This is Fussel One-Time-Pad 1.0");
 		// init global data:
 		global_data data{ argc, argv };
 		// give calss action access to global data:
@@ -316,6 +329,9 @@ int cli(int argc, char** argv, std::shared_ptr<spdlog::logger> standard_logger) 
 			"\n\nAborted.";
 		return 1;
 	}
+	catch (const bad_argument& e) {
+		std::cerr << e.what();
+	}
 	catch (const internal_error& e) {
 		std::cerr << e.what();
 		return 2;
@@ -331,13 +347,12 @@ int cli(int argc, char** argv, std::shared_ptr<spdlog::logger> standard_logger) 
 int main(int argc, char** argv)
 {
 	// set up logger
-	spdlog::set_level(spdlog::level::debug);
 	auto sink_std_cout = std::make_shared<spdlog::sinks::ostream_sink_mt>(std::cout);
-	auto standard_logger = std::make_shared<spdlog::logger>("standard_logger", sink_std_cout);
+	auto standard_logger = std::make_shared<spdlog::logger>(STANDARD_LOGGER_NAME, sink_std_cout);
+	standard_logger->set_level(spdlog::level::debug);
 	spdlog::register_logger(standard_logger);
 
-
-	return cli(argc, argv, standard_logger);
+	return cli(argc, argv);
 
 
 	// run debugger to find exception cause
