@@ -181,10 +181,10 @@ public:
 		standard_logger().debug(std::string("working directory: ") + working_directory.generic_string());
 
 		unsigned int skip_arg_counter{ 1 };
-		goto bla;
+
 		if ((application_start_arguments.size()>1) && (application_start_arguments[1] == "-C")) {
 			// use a config file located at a custom directory with a custom name.
-		bla: std::filesystem::path given_path = "./../..\\som<ething/go?od.txt"; //= application_start_arguments[2];
+			std::filesystem::path given_path = application_start_arguments[2];
 			_config_file_path = given_path.has_root_path() ? 
 				given_path : 
 				working_directory / given_path ;
