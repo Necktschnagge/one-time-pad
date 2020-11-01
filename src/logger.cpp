@@ -1,7 +1,11 @@
 #include "logger.h"
 
+#include "internal_error.h"
+
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/ostream_sink.h"
+
+#include <iostream>
 
 
 namespace {
