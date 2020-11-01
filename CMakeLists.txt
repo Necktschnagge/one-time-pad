@@ -3,11 +3,12 @@ cmake_minimum_required(VERSION 3.10)
 set(PROJECT_NAME One-Time-Pad)
 project(${PROJECT_NAME} VERSION 1.0)
 
+message("Flag: ${CMAKE_CXX_FLAGS_DEBUG}") # should create log output on cmake run...
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS False)
 set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-set(CMAKE_CXX_FLAGS_DEBUG "/MTd")
+set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Zi /Ob0 /Od /RTC1 /MTd")
 
 add_subdirectory(extern/googletest)
 
