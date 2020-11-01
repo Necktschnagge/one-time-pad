@@ -6,8 +6,11 @@
 #include "global_data.h"
 #include "logger.h"
 
-#include "nlohmann/json.hpp"
+#include "action.h"
+#include "otp_init.h"
+#include "otp_status.h"
 
+#include "nlohmann/json.hpp"
 
 #include <filesystem>
 #include <iostream>
@@ -78,74 +81,8 @@ otp [-D | -F | -DF ] [action_name] [action params]
 */
 
 
-class action {
-public:
-
-	inline static const global_data* data{ nullptr };
-private:
-	std::size_t id;
-	inline static std::size_t new_free_id{ 0 };
-protected:
-
-	void assert_match() {
-		if (!match()) throw action_error("This action does not match the input");
-	}
-	virtual void act() = 0;
-
-public:
-	action() : id(new_free_id++) {}
-
-	virtual bool match() const = 0;
-
-	inline void run() { assert_match(); act(); }
-
-	virtual std::string description() const = 0;
-
-	inline bool operator==(const action& another) const { return another.id == id; }
-};
 
 
-class otp_init : public action {
-public:
-	bool match() const override {
-		return data->application_start_arguments[1] == "init";
-	}
-
-	std::string description() const override {
-		return "INIT CONFIG JSON";
-	}
-
-protected:
-	void act() override {
-		action_error::assert_true(data->application_start_arguments.size() == 2, "Too many arguments.");
-		action_error::assert_true(!data->exists_config_file(), "File config.json already found.");
-		auto config_json{ std::ofstream(data->config_file_path()) };
-		action_error::assert_true(config_json.good(), "Could not create config.json.");
-		config_json << const_strings::EMPTY_CONFIG;
-		config_json.close();
-		std::cout << "Successfully created a fresh config.json:\n\t" << data->config_file_path() << '\n';
-	}
-
-};
-
-class otp_status : public action {
-	bool match() const override {
-		return data->application_start_arguments[1] == "status";
-	}
-
-protected:
-	void act() override {
-		action_error::assert_true(data->application_start_arguments.size() == 2, "Too many arguments.");
-		if (!data->exists_config_file()) {
-			std::cout << "The current directory has not been set up for One-Time-Pad: File config.json is missing.\n You may create one by typing:\n   otp init\n";
-			return;
-		}
-		auto config_json{ std::ifstream(data->config_file_path()) };
-		action_error::assert_true(config_json.good(), "Could not read config.json although there exists such a file.");
-
-		config_json.close();
-	}
-};
 
 
 int cli(int argc, char** argv) {
@@ -158,6 +95,7 @@ int cli(int argc, char** argv) {
 		// list all implemented actions:
 		std::forward_list<std::unique_ptr<action>> all_actions;
 		all_actions.emplace_front(new otp_init());
+		all_actions.emplace_front(new otp_status());
 
 		// check for actions matching the input:
 		std::forward_list<action*> matching_actions;
