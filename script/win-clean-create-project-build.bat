@@ -1,3 +1,3 @@
-call .\win-clear.bat
-call .\win-install.bat
+call .\win-clean.bat
+call .\win-create-project.bat
 call .\win-build.bat
