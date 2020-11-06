@@ -74,7 +74,7 @@ config: {
  -C ./path/to/another_file_name.json
 
 
-otp [-D | -F | -DF ] [action_name] [action params]
+otp [-C path/to/config.json ] [action_name] [action params]
 
 
 
@@ -96,13 +96,19 @@ int cli(int argc, char** argv) {
 		std::forward_list<std::unique_ptr<action>> all_actions;
 		all_actions.emplace_front(new otp_init());
 		all_actions.emplace_front(new otp_status());
+		all_actions.emplace_front(new otp_help());
 
 		// check for actions matching the input:
 		std::forward_list<action*> matching_actions;
 		std::for_each(all_actions.cbegin(), all_actions.cend(), [&](const auto& p_action) { if (p_action->match()) matching_actions.push_front(p_action.get()); });
 
 		// Check for missing or ambiguous actions:
-		action_error::assert_true(!matching_actions.empty(), "Invalid input. There is no otp action matching your input.");
+		try {
+			action_error::assert_true(!matching_actions.empty(), "Invalid input. There is no otp action matching your input.");
+		}
+		catch (const action_error& e) {
+### view help here create a new help object and insert it here?
+		}
 		internal_error::assert_true(std::next(matching_actions.cbegin()) == matching_actions.cend(),
 			std::string("More than one action matched for input sequence which is:\n  ")
 			+ std::accumulate(data.application_start_arguments.cbegin(), data.application_start_arguments.cend(), std::string(), [](const auto& l, const auto& r) { return l + " " + r; })
