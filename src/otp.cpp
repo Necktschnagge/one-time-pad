@@ -114,7 +114,7 @@ int cli(int argc, char** argv) {
 			+ std::accumulate(data.application_start_arguments.cbegin(), data.application_start_arguments.cend(), std::string(), [](const auto& l, const auto& r) { return l + " " + r; })
 			+ "\nThe matching actions are {"
 			+ std::accumulate(matching_actions.cbegin(), matching_actions.cend(), std::string(), [](const auto& str, const auto& ptr) {
-				return str + (str.empty() ? "" : ", ") + ptr->description();
+				return str + (str.empty() ? "" : ", ") + ptr->short_description();
 				})
 			+ "}."
 					);

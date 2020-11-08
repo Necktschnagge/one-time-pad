@@ -31,6 +31,8 @@ public:
 
 	inline bool exists_config_file() const { return std::filesystem::exists(config_file_path()); }
 
+	const std::vector<std::string>& action_command_sequence{ _action_command_sequence };
+
 private:
 
 	std::vector<std::string> decode_command_line_input(int argc, char** argv) {

@@ -7,7 +7,7 @@ class otp_status : public action {
 		return data->application_start_arguments[1] == "status";
 	}
 
-	std::string description() const override {
+	std::string short_description() const override {
 		return "SHOW CONFIG STATUS";
 	}
 

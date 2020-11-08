@@ -26,7 +26,11 @@ public:
 
 	inline void run() { assert_match(); act(); }
 
-	virtual std::string description() const = 0;
+	virtual std::string name() const = 0;
+
+	virtual std::string short_description() const = 0;
+
+	virtual std::string help() const = 0;
 
 	inline bool operator==(const action& another) const { return another.id == id; }
 };
