@@ -7,8 +7,16 @@ class otp_status : public action {
 		return data->application_start_arguments[1] == "status";
 	}
 
+	std::string name() const override {
+		return "status";
+	}
+
 	std::string short_description() const override {
 		return "SHOW CONFIG STATUS";
+	}
+
+	std::string help() const override {
+		return "Syntax: otp status";
 	}
 
 protected:

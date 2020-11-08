@@ -10,7 +10,7 @@ public:
 		if (!condition) throw exception;
 	}
 
-	bad_argument(const std::string& message) : message(message) {}
+	bad_argument(const std::string& message) : message(std::string("bad argument: ") + message) {}
 	bad_argument(const char* message) : bad_argument(std::string(message)) {}
 	bad_argument(const bad_argument&) = default;
 

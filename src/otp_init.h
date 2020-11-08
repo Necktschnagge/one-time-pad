@@ -12,8 +12,16 @@ public:
 		return data->application_start_arguments[1] == "init";
 	}
 
+	std::string name() const override {
+		return "config";
+	}
+
 	std::string short_description() const override {
 		return "INIT CONFIG JSON";
+	}
+
+	std::string help() const override {
+		return "Syntax: otp init";
 	}
 
 protected:

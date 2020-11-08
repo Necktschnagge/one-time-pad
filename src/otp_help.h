@@ -7,9 +7,13 @@
 
 class otp_help : public action {
 
+public:
+	using action_collection = std::forward_list<std::unique_ptr<action>>;
+private:
+
 	bool suppressed_match_check{ false };
 
-	const std::forward_list<std::unique_ptr<action>>& all_actions;
+	const action_collection& all_actions;
 
 protected:
 	void act() override {
@@ -23,16 +27,16 @@ protected:
 		std::cout << "The following actions are available:\n";
 		for (const auto& ptr : all_actions) {
 			std::cout << "\n";
-			std::cout << "\tName: " << ptr->name()
-				<< "\tShort description: " << ptr->short_description()
-				<< "\tSyntax and behaviour:\n" << ptr->help();
+			std::cout << "\tName: " << ptr->name() << "\n"
+				<< "\tShort description: " << ptr->short_description() << "\n"
+				<< "\tSyntax and behaviour:\n" << ptr->help() << "\n";
 		}
 		standard_logger().info("Showing info ...DONE.");
 	}
 
 public:
 
-	otp_help(const std::forward_list<std::unique_ptr<action>>& all_actions) : all_actions(all_actions) {}
+	otp_help(const action_collection& all_actions) : all_actions(all_actions) {}
 
 	bool match() const override {
 		return suppressed_match_check || (data->action_command_sequence[0] == "help");
@@ -49,7 +53,7 @@ public:
 	}
 
 	std::string help() const override {
-		return ""
+		return "Syntax: otp help";
 	}
 
 };
